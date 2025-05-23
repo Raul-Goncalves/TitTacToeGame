@@ -71,6 +71,12 @@ class PlayedController extends ChangeNotifier {
         winner = board[a];
         isGameOver = true;
 
+        if (winner == 'X') {
+          xWins++;
+        } else if (winner == 'O') {
+          oWins++;
+        }
+
         notifyListeners();
         return;
       }
@@ -85,38 +91,53 @@ class PlayedController extends ChangeNotifier {
     }
   }
 
+  String? _simulateWinner(List<String?> simulatedBoard) {
+    const List<List<int>> winningCombinations = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (var combo in winningCombinations) {
+      final a = combo[0], b = combo[1], c = combo[2];
+      if (simulatedBoard[a] != null &&
+          simulatedBoard[a] == simulatedBoard[b] &&
+          simulatedBoard[a] == simulatedBoard[c]) {
+        return simulatedBoard[a];
+      }
+    }
+
+    return null;
+  }
+
   int? _getMediumIABotMove() {
-    // 1. Ganhar se possível
     for (int i = 0; i < 9; i++) {
       if (board[i] == null) {
         board[i] = ia;
-        _checkWinner();
-        if (winner == ia) {
-          board[i] = null;
+        String? simulated = _simulateWinner(board);
+        board[i] = null;
+        if (simulated == ia) {
           return i;
         }
-        board[i] = null;
-        winner = null;
-        isGameOver = false;
       }
     }
 
-    // 2. Bloquear jogador se ele puder ganhar
     for (int i = 0; i < 9; i++) {
       if (board[i] == null) {
         board[i] = player;
-        _checkWinner();
-        if (winner == player) {
-          board[i] = null;
-          winner = null;
-          isGameOver = false;
+        String? simulated = _simulateWinner(board);
+        board[i] = null;
+        if (simulated == player) {
           return i;
         }
-        board[i] = null;
       }
     }
 
-    // 3. Jogada estratégica (centro > cantos > laterais)
     if (board[4] == null) return 4;
     for (var i in [0, 2, 6, 8]) {
       if (board[i] == null) return i;
