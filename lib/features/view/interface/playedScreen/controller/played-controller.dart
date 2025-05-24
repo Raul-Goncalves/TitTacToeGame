@@ -1,8 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+
+enum DifficultyLevel { easy, medium, hard }
 
 class PlayedController extends ChangeNotifier {
   final String player;
   late final String ia;
+  final DifficultyLevel difficulty;
 
   List<String?> board = List.filled(9, null);
   String currentPlayer = '';
@@ -11,7 +16,7 @@ class PlayedController extends ChangeNotifier {
   int xWins = 0;
   int oWins = 0;
 
-  PlayedController(this.player) {
+  PlayedController(this.player, this.difficulty) {
     ia = player == 'X' ? 'O' : 'X';
     currentPlayer = player;
   }
@@ -35,7 +40,18 @@ class PlayedController extends ChangeNotifier {
   }
 
   void iaBotPlay() {
-    int? move = _getMediumIABotMove();
+    int? move;
+
+    switch(difficulty){
+      case DifficultyLevel.easy:
+        move = _getRandomMove();
+        break;
+      case DifficultyLevel.medium:
+        move = _getMediumIABotMove();
+        break;
+      case DifficultyLevel.hard:
+        move = _getHardIABotMove();
+    }
 
     if (move != null && board[move] == null) {
       board[move] = ia;
@@ -89,6 +105,14 @@ class PlayedController extends ChangeNotifier {
     } else {
       isGameOver = false;
     }
+  }
+
+  void resetGame() {
+    board = List.filled(9, null);
+    currentPlayer = player;
+    winner = null;
+    isGameOver = false;
+    notifyListeners();
   }
 
   String? _simulateWinner(List<String?> simulatedBoard) {
@@ -149,11 +173,67 @@ class PlayedController extends ChangeNotifier {
     return null;
   }
 
-  void resetGame() {
-    board = List.filled(9, null);
-    currentPlayer = player;
-    winner = null;
-    isGameOver = false;
-    notifyListeners();
+  int? _getRandomMove() {
+    final emptyIndices = <int>[];
+    for (int i = 0; i < 9; i++) {
+      if (board[i] == null) emptyIndices.add(i);
+    }
+    if (emptyIndices.isEmpty) return null;
+    final random = Random();
+    return emptyIndices[random.nextInt(emptyIndices.length)];
   }
+
+  int? _getHardIABotMove() {
+    int bestScore = -1000;
+    int? bestMove;
+
+    for (int i = 0; i < 9; i++) {
+      if (board[i] == null) {
+        board[i] = ia;
+        int score = _minimax(board, 0, false);
+        board[i] = null;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = i;
+        }
+      }
+    }
+
+    return bestMove;
+  }
+
+  int _minimax(List<String?> newBoard, int depth, bool isMaximizing) {
+    String? result = _simulateWinner(newBoard);
+    if (result != null) {
+      if (result == ia) return 10 - depth;
+      else if (result == player) return depth - 10;
+    }
+    if (!newBoard.contains(null)) return 0;
+
+    if (isMaximizing) {
+      int bestScore = -1000;
+      for (int i = 0; i < 9; i++) {
+        if (newBoard[i] == null) {
+          newBoard[i] = ia;
+          int score = _minimax(newBoard, depth + 1, false);
+          newBoard[i] = null;
+          bestScore = max(score, bestScore);
+        }
+      }
+      return bestScore;
+    } else {
+      int bestScore = 1000;
+      for (int i = 0; i < 9; i++) {
+        if (newBoard[i] == null) {
+          newBoard[i] = player;
+          int score = _minimax(newBoard, depth + 1, true);
+          newBoard[i] = null;
+          bestScore = min(score, bestScore);
+        }
+      }
+      return bestScore;
+    }
+  }
+
+
 }

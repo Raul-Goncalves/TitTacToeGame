@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tictaetoos/core/fonts/app-fonts.dart';
 import 'package:tictaetoos/features/view/interface/homeScreen/home-view.dart';
 import 'package:tictaetoos/features/widgets/button-widget.dart';
@@ -7,8 +8,9 @@ import 'controller/played-controller.dart';
 
 class played_view extends StatefulWidget {
   final String selectedPlayer;
+  final DifficultyLevel difficulty;
 
-  const played_view({super.key, required this.selectedPlayer});
+  const played_view({super.key, required this.selectedPlayer, required this.difficulty});
 
   @override
   State<played_view> createState() => _played_viewState();
@@ -20,7 +22,7 @@ class _played_viewState extends State<played_view> {
   @override
   void initState() {
     super.initState();
-    controller = PlayedController(widget.selectedPlayer);
+    controller = PlayedController(widget.selectedPlayer, widget.difficulty);
     controller.addListener(_update);
   }
 
@@ -30,6 +32,28 @@ class _played_viewState extends State<played_view> {
   void dispose() {
     controller.removeListener(_update);
     super.dispose();
+  }
+
+  Route _createRouteToHomeScreen() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => home_View(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+
+        final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final opacityTween = Tween<double>(begin: 0.0, end: 1.0);
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: FadeTransition(
+            opacity: animation.drive(opacityTween),
+            child: child,
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -130,9 +154,7 @@ class _played_viewState extends State<played_view> {
                     button_Widget(
                       text: 'Sair',
                       onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => home_View()),
-                        );
+                        Navigator.of(context).push(_createRouteToHomeScreen());
                       },
                     ),
                   ],

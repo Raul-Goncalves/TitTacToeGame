@@ -10,4 +10,11 @@ class appFonts{
       height: 1.0
   );
 
+  static TextStyle Text = GoogleFonts.poppins(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      fontStyle: FontStyle.normal,
+      height: 1.0
+  );
+
 }
