@@ -14,7 +14,8 @@ Todo o layout foi planejado e desenhado no Figma com foco em uma interface amig�
 
 ## 🚀 Funcionalidades
 
-- Jogador vs. IA com dificuldade média
+- Jogador vs. IA
+- Escolha da Dificuldade (Fácil, Médio, Difícil)
 - Contagem de vitórias (placar de `X` e `O`)
 - Reconhecimento de vitória e empate
 - Layout responsivo e customizado
