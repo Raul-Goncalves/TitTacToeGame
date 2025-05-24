@@ -27,24 +27,6 @@ Todo o layout foi planejado e desenhado no Figma com foco em uma interface amig�
 - **Figma** para design da interface
 - **Animações** com o pacote `flutter_animate`
 
-## 📂 Estrutura do Projeto
-
-lib/
-├── core/
-│ └── fonts/
-├── features/
-│ ├── view/
-│ │ ├── interface/
-│ │ │ ├── homeScreen/
-│ │ │ ├── playedScreen/
-│ │ │ 	├── controller/
-│ │ │ ├── splashScreen/
-│ │ │ 	├── controller/
-│ │ │ ├── choseScreen/
-│ ├── widgets/
-
-
-
 ## ✨ Autor
 
 Desenvolvido 100% por **Raul Gonçalves**.  
